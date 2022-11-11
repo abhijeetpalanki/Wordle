@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView, StyleSheet, Text, View, ScrollView, Alert } from "react-native";
-import { colors, CLEAR, ENTER } from "./src/constants";
+import { colors, CLEAR, ENTER, colorsToEmoji } from "./src/constants";
 import Keyboard from "./src/components/Keyboard";
+import * as Clipboard from "expo-clipboard";
 
 const NUMBER_OF_TRIES = 6;
 
@@ -29,12 +30,19 @@ export default function App() {
 
   const checkGameState = () => {
     if (checkIfWon()) {
-      Alert.alert("Hurray", "You won!");
+      Alert.alert("Hurray", "You won!", [{text: "Share", onPress: shareScore}]);
       setGameState("won");
     } else if(checkIfLost()) {
       Alert.alert("Meh", "Try again tomorrow!");
       setGameState("lost");
     }
+  }
+
+  const shareScore = () => {
+    const textMap = rows.map((row, i) => row.map((cell, j) => colorsToEmoji[getCellBGColor(i, j)]).join("")).filter(row => row).join("\n");
+    const textToShare = `Wordle \n\n${textMap}`;
+    Clipboard.setString(textToShare);
+    Alert.alert("Copied Successfully!", "Share your score on your social media");
   }
 
   const checkIfWon = () => {
